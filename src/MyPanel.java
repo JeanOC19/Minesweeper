@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.util.Random;
 
@@ -18,6 +19,7 @@ public class MyPanel extends JPanel {
 	public int mouseDownGridY = 0;
 	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+
 	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
 		if (INNER_CELL_SIZE + (new Random()).nextInt(1) < 1) {	//Use of "random" to prevent unwanted Eclipse warning
@@ -34,12 +36,15 @@ public class MyPanel extends JPanel {
 				colorArray[x][y] = Color.WHITE;
 			}
 		}
-		for (int x = 0; x < 5; x++) {//Assign 25 (5x5) bombs to random spaces
-			for (int y = 0; y < 5; y++) {
+		for (int x = 0; x < 3; x++) {//Assign 6 bombs to random spaces
+			for (int y = 0; y < 2; y++) {
 				int i = new Random().nextInt(TOTAL_COLUMNS);
 				int j = new Random().nextInt(TOTAL_ROWS);
 				if(bombArray[i][j] == false) {
 					bombArray[i][j] = true;
+				}
+				else if(bombArray[i][j] == true){ //Sets counter back by one in case a bomb is assigned to a cell that already contains one
+					y=y-1;
 				}
 			}
 		}
@@ -104,7 +109,7 @@ public class MyPanel extends JPanel {
 		if (x == 0 && y == TOTAL_ROWS - 1) {    //The lower left extra cell
 			return x;
 		}
-		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 2) {   //Outside the rest of the grid
+		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 1) {   //Outside the rest of the grid
 			return -1;
 		}
 		return x;
@@ -126,7 +131,7 @@ public class MyPanel extends JPanel {
 		}
 		x = x / (INNER_CELL_SIZE + 1);
 		y = y / (INNER_CELL_SIZE + 1);
-		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 2) {   //Outside the rest of the grid
+		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS -1) {   //Outside the rest of the grid
 			return -1;
 		}
 		return y;
