@@ -18,6 +18,7 @@ public class MyPanel extends JPanel {
 	public int mouseDownGridY = 0;
 	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+
 	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
 		if (INNER_CELL_SIZE + (new Random()).nextInt(1) < 1) {	//Use of "random" to prevent unwanted Eclipse warning
@@ -34,13 +35,12 @@ public class MyPanel extends JPanel {
 				colorArray[x][y] = Color.WHITE;
 			}
 		}
-		for (int x = 0; x < 5; x++) {//Assign 25 (5x5) bombs to random spaces
-			for (int y = 0; y < 5; y++) {
-				int i = new Random().nextInt(TOTAL_COLUMNS);
-				int j = new Random().nextInt(TOTAL_ROWS);
-				if(bombArray[i][j] == false) {
-					bombArray[i][j] = true;
-				}
+		for (int x = 0; x < 10;) {		//Assign 10 bombs to random spaces
+			int i = new Random().nextInt(TOTAL_COLUMNS);
+			int j = new Random().nextInt(TOTAL_ROWS);
+			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space is doesn't have one already
+				bombArray[i][j] = true;
+				x++;
 			}
 		}
 	}
@@ -104,7 +104,7 @@ public class MyPanel extends JPanel {
 		if (x == 0 && y == TOTAL_ROWS - 1) {    //The lower left extra cell
 			return x;
 		}
-		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 2) {   //Outside the rest of the grid
+		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 1) {   //Outside the rest of the grid
 			return -1;
 		}
 		return x;
@@ -126,7 +126,7 @@ public class MyPanel extends JPanel {
 		}
 		x = x / (INNER_CELL_SIZE + 1);
 		y = y / (INNER_CELL_SIZE + 1);
-		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 2) {   //Outside the rest of the grid
+		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS -1) {   //Outside the rest of the grid
 			return -1;
 		}
 		return y;
@@ -138,9 +138,17 @@ public class MyPanel extends JPanel {
 		return TOTAL_ROWS;
 	}
 	public boolean isBomb(int x, int y) {	//Method to verify if the selected square is a bomb
-		if(bombArray[x][y] == true){
-			return true;
+		return bombArray[x][y];
+	}
+	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
+		int bombCounter = 0;
+		for(int i = x-1 ; i <= x+1; i++) {
+			for(int j = y-1 ; j <= y+1 ; j++) {
+				if(isBomb(i,j)) {
+					bombCounter++;
+				}
+			}
 		}
-		return false;
+		return bombCounter;
 	}
 }
