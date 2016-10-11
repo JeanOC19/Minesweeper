@@ -153,7 +153,6 @@ public class MyPanel extends JPanel {
 			}
 		}
 		return bombCounter;
-<<<<<<< HEAD
 	}
 	public void chain(int x, int y) { //method to create a chain between cells that have no bombs nearby and color them grey
 		if(x==0 && y!=0 && y!=8){
@@ -363,7 +362,5 @@ public class MyPanel extends JPanel {
 				}
 			}
 		}
-=======
->>>>>>> refs/remotes/origin/master
 	}
 }

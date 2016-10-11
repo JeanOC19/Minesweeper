@@ -107,16 +107,13 @@ public class MyMouseAdapter extends MouseAdapter {
 									}
 								}
 							}
-<<<<<<< HEAD
 						} 
 						 //reguero
 						else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							
-=======
 						} else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
->>>>>>> refs/remotes/origin/master
 							myPanel.colorArray[gridX][gridY] = Color.GRAY;
 							myPanel.chain(gridX, gridY);
 							
