@@ -13,12 +13,14 @@ public class MyPanel extends JPanel {
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
+	boolean chainswitch=true;
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
 	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
 
 	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
@@ -36,16 +38,12 @@ public class MyPanel extends JPanel {
 				colorArray[x][y] = Color.WHITE;
 			}
 		}
-		for (int x = 0; x < 3; x++) {//Assign 6 bombs to random spaces
-			for (int y = 0; y < 2; y++) {
-				int i = new Random().nextInt(TOTAL_COLUMNS);
-				int j = new Random().nextInt(TOTAL_ROWS);
-				if(bombArray[i][j] == false) {
-					bombArray[i][j] = true;
-				}
-				else if(bombArray[i][j] == true){ //Sets counter back by one in case a bomb is assigned to a cell that already contains one
-					y=y-1;
-				}
+		for (int x = 0; x < 10;) {		//Assign 10 bombs to random spaces
+			int i = new Random().nextInt(TOTAL_COLUMNS);
+			int j = new Random().nextInt(TOTAL_ROWS);
+			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space is doesn't have one already
+				bombArray[i][j] = true;
+				x++;
 			}
 		}
 	}
@@ -143,9 +141,226 @@ public class MyPanel extends JPanel {
 		return TOTAL_ROWS;
 	}
 	public boolean isBomb(int x, int y) {	//Method to verify if the selected square is a bomb
-		if(bombArray[x][y] == true){
-			return true;
+		return bombArray[x][y];
+	}
+	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
+		int bombCounter = 0;
+		for(int i = x-1 ; i <= x+1; i++) {
+			for(int j = y-1 ; j <= y+1 ; j++) {
+				if(isBomb(i,j)) {
+					bombCounter++;
+				}
+			}
 		}
-		return false;
+		return bombCounter;
+	}
+	public void chain(int x, int y) {
+		if(x==0 && y!=0 && y!=8){
+			for(int i=0; i<2; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y!=8 && y!=0){
+			for(int i=-1; i<1; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==0 && y==0){
+			for(int i=0; i<2; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(y==0 && x!=0 && x!=8){
+			for(int i=-1; i<2; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==0 && y==8){
+			for(int i=0; i<2; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(y==8 && x!=0 && x!=8){
+			for(int i=-1; i<2; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y==0){
+			for(int i=-1; i<1; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y==8){
+			for(int i=-1; i<1; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else{
+			for(int i=-1; i<2; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
 	}
 }
