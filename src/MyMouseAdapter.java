@@ -111,10 +111,11 @@ public class MyMouseAdapter extends MouseAdapter {
 						 //reguero
 						else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
+							
 							myPanel.colorArray[gridX][gridY] = Color.GRAY;
 							myPanel.chain(gridX, gridY);
 							
-						  for(int i=-1; i<2; i++){
+						  for(int i=-1; i<2; i++){ //continue chain
 								for (int j=-1; j<2; j++){
 									myPanel.chain(gridX, gridY);
 									myPanel.chain(gridX+i, gridY+j);
