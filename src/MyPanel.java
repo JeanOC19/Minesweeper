@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.util.Random;
 
@@ -230,7 +229,7 @@ public class MyPanel extends JPanel {
 		return bombCounter;
 	}
 	public void chain(int x, int y) { //method to create a chain between cells that have no bombs nearby and color them grey
-		if(x==0 && y!=0 && y!=8){
+		if(x==0 && y!=0 && y!=TOTAL_ROWS -1){
 			for(int i=0; i<2; i++){
 				for (int j=-1; j<2; j++){
 					if(bombArray[x+i][y+j]==false){
