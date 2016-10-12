@@ -95,7 +95,8 @@ public class MyMouseAdapter extends MouseAdapter {
 					if ((myPanel.mouseDownGridX != gridX) || (myPanel.mouseDownGridY != gridY)) {
 						//Released the mouse button on a different cell where it was pressed
 						//Do nothing
-					} else {
+					}
+					else {
 						//On the grid
 						if(myPanel.isBomb(gridX, gridY) && !myPanel.colorArray[gridX][gridY].equals(Color.RED)) {
 							//If square is a bomb and hasn't been flagged, reveal the rest
@@ -103,19 +104,32 @@ public class MyMouseAdapter extends MouseAdapter {
 								for(int j = 0; j < myPanel.getRows(); j++) {
 									if(myPanel.isBomb(i,j)) {
 										myPanel.colorArray[i][j] = Color.BLACK;
-									}
+									} 
 								}
 							}
+						} 
+						 //reguero
+						else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
+							//Paint the panel if it hasn't been flagged or revealed to be a bomb
+							
 						} else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.colorArray[gridX][gridY] = Color.GRAY;
+							myPanel.chain(gridX, gridY);
+							
+						  for(int i=-1; i<2; i++){ //continue chain
+								for (int j=-1; j<2; j++){
+									myPanel.chain(gridX, gridY);
+									myPanel.chain(gridX+i, gridY+j);
+									myPanel.chain(gridX-i, gridY-j);
+								}
+							}
 						}
 						myPanel.repaint();
 					}
 				}
 			}
 			myPanel.repaint();
-			break;
 		case 3:		//Right mouse button
 			c = e.getComponent();
 			while (!(c instanceof JFrame)) {

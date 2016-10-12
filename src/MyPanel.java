@@ -13,12 +13,14 @@ public class MyPanel extends JPanel {
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
+	boolean chainswitch=true;
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
 	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
 
 	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
@@ -74,16 +76,24 @@ public class MyPanel extends JPanel {
 		//Draw an additional cell at the bottom left
 		g.drawRect(x1 + GRID_X, y1 + GRID_Y + ((INNER_CELL_SIZE + 1) * (TOTAL_ROWS - 1)), INNER_CELL_SIZE + 1, INNER_CELL_SIZE + 1);
 
-		//Paint cell colors
+		//Paint cell colors and paint numbers
 		for (int x = 0; x < TOTAL_COLUMNS; x++) {
 			for (int y = 0; y < TOTAL_ROWS; y++) {
-				if ((x == 0) || (y != TOTAL_ROWS)) {
-					Color c = colorArray[x][y];
-					g.setColor(c);
-					g.fillRect(x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 1, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 1, INNER_CELL_SIZE, INNER_CELL_SIZE);
+				Color c = colorArray[x][y];
+				g.setColor(c);
+				g.fillRect(x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 1, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 1, INNER_CELL_SIZE, INNER_CELL_SIZE);
+				
+				//If the tile has been pressed, paint number of surrounding bombs
+				if (colorArray[x][y].equals(Color.GRAY)) {
+					int bombCount = this.surroundingBombs(x, y);
+					if(bombCount != 0){
+						g.setColor(Color.BLUE);
+						g.drawString(bombCount + "" + "", x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 12, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 21);
+					}
 				}
 			}
-		}
+		}	
+		//Paint surrounding bombs in tiles that are uncovered
 	}
 	public int getGridX(int x, int y) {
 		Insets myInsets = getInsets();
@@ -143,13 +153,289 @@ public class MyPanel extends JPanel {
 	}
 	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
 		int bombCounter = 0;
-		for(int i = x-1 ; i <= x+1; i++) {
-			for(int j = y-1 ; j <= y+1 ; j++) {
-				if(isBomb(i,j)) {
-					bombCounter++;
+		
+		if(x == 0 && y == 0) {	//For top left corner
+			for(int i = x ; i <= x+1; i++) {
+				for(int j = y ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(x == TOTAL_COLUMNS -1 && y == TOTAL_ROWS -1) { //For lower right corner
+			for(int i = x-1 ; i <= x; i++) {
+				for(int j = y-1 ; j <= y ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(x == 0 && y == TOTAL_ROWS -1) { //For lower left corner
+			for(int i = x ; i <= x+1; i++) {
+				for(int j = y-1 ; j <= y ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(x == TOTAL_COLUMNS -1 && y == 0) {	//For top right corner
+			for(int i = x-1 ; i <= x; i++) {
+				for(int j = y ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(x == 0 && y != 0 && y != TOTAL_ROWS -1) {	//For left border
+			for(int i = x ; i <= x+1; i++) {
+				for(int j = y-1 ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(y == 0 && x != 0 && x != TOTAL_COLUMNS -1) { 	//For top border
+			for(int i = x-1 ; i <= x+1; i++) {
+				for(int j = y ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(x == TOTAL_COLUMNS -1 && y != 0 && y != TOTAL_ROWS -1) {	//For right border
+			for(int i = x-1 ; i <= x; i++) {
+				for(int j = y-1 ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else if(y == TOTAL_ROWS -1 && x != 0 && x != TOTAL_COLUMNS -1) { //For lower border
+			for(int i = x-1 ; i <= x+1; i++) {
+				for(int j = y-1 ; j <= y ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
+				}
+			}
+		} else {
+			for(int i = x-1 ; i <= x+1; i++) {
+				for(int j = y-1 ; j <= y+1 ; j++) {
+					if(isBomb(i,j)) {
+						bombCounter++;
+					}
 				}
 			}
 		}
 		return bombCounter;
+	}
+	public void chain(int x, int y) { //method to create a chain between cells that have no bombs nearby and color them grey
+		if(x==0 && y!=0 && y!=8){
+			for(int i=0; i<2; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y!=8 && y!=0){
+			for(int i=-1; i<1; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==0 && y==0){
+			for(int i=0; i<2; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(y==0 && x!=0 && x!=8){
+			for(int i=-1; i<2; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==0 && y==8){
+			for(int i=0; i<2; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=0; i<2; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(y==8 && x!=0 && x!=8){
+			for(int i=-1; i<2; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y==0){
+			for(int i=-1; i<1; i++){
+				for (int j=0; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=0; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else if(x==8 && y==8){
+			for(int i=-1; i<1; i++){
+				for (int j=-1; j<1; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<1; i++){
+					for (int j=-1; j<1; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
+		else{
+			for(int i=-1; i<2; i++){
+				for (int j=-1; j<2; j++){
+					if(bombArray[x+i][y+j]==false){
+						chainswitch = true;
+					}
+					else{
+						chainswitch = false;
+						break;
+					}
+				}
+				if (chainswitch==false){
+					break;
+				}
+			}
+			if(chainswitch){
+				for(int i=-1; i<2; i++){
+					for (int j=-1; j<2; j++){
+						colorArray[x+i][y+j] = Color.GRAY;
+					}
+				}
+			}
+		}
 	}
 }
