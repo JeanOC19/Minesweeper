@@ -153,79 +153,16 @@ public class MyPanel extends JPanel {
 	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
 		int bombCounter = 0;
 		
-		if(x == 0 && y == 0) {	//For top left corner
-			for(int i = x ; i <= x+1; i++) {
-				for(int j = y ; j <= y+1 ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(x == TOTAL_COLUMNS -1 && y == TOTAL_ROWS -1) { //For lower right corner
-			for(int i = x-1 ; i <= x; i++) {
-				for(int j = y-1 ; j <= y ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(x == 0 && y == TOTAL_ROWS -1) { //For lower left corner
-			for(int i = x ; i <= x+1; i++) {
-				for(int j = y-1 ; j <= y ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(x == TOTAL_COLUMNS -1 && y == 0) {	//For top right corner
-			for(int i = x-1 ; i <= x; i++) {
-				for(int j = y ; j <= y+1 ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(x == 0 && y != 0 && y != TOTAL_ROWS -1) {	//For left border
-			for(int i = x ; i <= x+1; i++) {
-				for(int j = y-1 ; j <= y+1 ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(y == 0 && x != 0 && x != TOTAL_COLUMNS -1) { 	//For top border
-			for(int i = x-1 ; i <= x+1; i++) {
-				for(int j = y ; j <= y+1 ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(x == TOTAL_COLUMNS -1 && y != 0 && y != TOTAL_ROWS -1) {	//For right border
-			for(int i = x-1 ; i <= x; i++) {
-				for(int j = y-1 ; j <= y+1 ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else if(y == TOTAL_ROWS -1 && x != 0 && x != TOTAL_COLUMNS -1) { //For lower border
-			for(int i = x-1 ; i <= x+1; i++) {
-				for(int j = y-1 ; j <= y ; j++) {
-					if(isBomb(i,j)) {
-						bombCounter++;
-					}
-				}
-			}
-		} else {
-			for(int i = x-1 ; i <= x+1; i++) {
-				for(int j = y-1 ; j <= y+1 ; j++) {
+		for(int i = x-1; i <= x+1; i++) {
+			for(int j = y-1; j <= y+1; j++) {
+				if(i < TOTAL_COLUMNS && i >= 0 && j < TOTAL_ROWS && j >= 0 ) {
 					if(isBomb(i,j)) {
 						bombCounter++;
 					}
 				}
 			}
 		}
+		System.out.println(bombCounter);
 		return bombCounter;
 	}
 	public void chain(int x, int y) { //method to create a chain between cells that have no bombs nearby and color them grey
