@@ -100,7 +100,7 @@ public class MyMouseAdapter extends MouseAdapter {
 						if(myPanel.isBomb(gridX, gridY) && myPanel.getColor(gridX,gridY) != Color.RED) {
 							//If square is a bomb and hasn't been flagged, user lost
 							myPanel.bombPressed();
-							myPanel.losemessage();
+							myPanel.gameOver();
 						} else if(myPanel.getColor(gridX,gridY) != Color.RED && myPanel.getColor(gridX,gridY) != Color.BLACK) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.setColor(gridX,gridY,Color.GRAY);

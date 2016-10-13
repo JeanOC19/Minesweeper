@@ -202,8 +202,8 @@ public class MyPanel extends JPanel {
 			}
 		}
 	}
-	public void losemessage(){
+	public void gameOver(){
 		repaint();
-		JOptionPane.showMessageDialog(frame, "git gud");
+		JOptionPane.showMessageDialog(frame, "Game Over");
 	}
 }
