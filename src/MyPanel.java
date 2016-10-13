@@ -12,6 +12,7 @@ public class MyPanel extends JPanel {
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
+	private static final int BOMB_COUNT = 12;
 	boolean chainswitch=true;
 	public int x = -1;
 	public int y = -1;
@@ -34,10 +35,10 @@ public class MyPanel extends JPanel {
 		}
 		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Create the 9x9 grid colors
 			for (int y = 0; y < TOTAL_ROWS; y++) {
-				colorArray[x][y] = Color.WHITE;
+				this.setColor(x, y, Color.WHITE);
 			}
 		}
-		for (int x = 0; x < 10;) {		//Assign 10 bombs to random spaces
+		for (int x = 0; x < BOMB_COUNT;) {		//Assign 10 bombs to random spaces
 			int i = new Random().nextInt(TOTAL_COLUMNS);
 			int j = new Random().nextInt(TOTAL_ROWS);
 			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space is doesn't have one already
@@ -46,7 +47,7 @@ public class MyPanel extends JPanel {
 			}
 		}
 	}
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) {	//Method in charge of painting tiles and numbers
 		super.paintComponent(g);
 
 		//Compute interior coordinates
@@ -72,28 +73,27 @@ public class MyPanel extends JPanel {
 			g.drawLine(x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)), y1 + GRID_Y, x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)), y1 + GRID_Y + ((INNER_CELL_SIZE + 1) * (TOTAL_ROWS )));
 		}
 
-		//Draw an additional cell at the bottom left
-		g.drawRect(x1 + GRID_X, y1 + GRID_Y + ((INNER_CELL_SIZE + 1) * (TOTAL_ROWS - 1)), INNER_CELL_SIZE + 1, INNER_CELL_SIZE + 1);
-
 		//Paint cell colors and paint numbers
 		for (int x = 0; x < TOTAL_COLUMNS; x++) {
 			for (int y = 0; y < TOTAL_ROWS; y++) {
-				Color c = colorArray[x][y];
+				Color c = this.getColor(x, y);
 				g.setColor(c);
 				g.fillRect(x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 1, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 1, INNER_CELL_SIZE, INNER_CELL_SIZE);
 				
-				//If the tile has been pressed, paint number of surrounding bombs
-				if (colorArray[x][y].equals(Color.GRAY)) {
+				//If the tile has been pressed, count surrounding bombs
+				if (this.getColor(x, y) == Color.GRAY) {
 					int bombCount = this.surroundingBombs(x, y);
-					if(bombCount != 0){
+					//If the number of surrounding bombs is greater than 0, paint the number
+					if(bombCount > 0){
 						g.setColor(Color.BLUE);
 						g.drawString(bombCount + "" + "", x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 12, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 21);
 					}
 				}
 			}
 		}	
-		//Paint surrounding bombs in tiles that are uncovered
 	}
+	
+	//Setter and getter methods
 	public int getGridX(int x, int y) {
 		Insets myInsets = getInsets();
 		int x1 = myInsets.left;
@@ -111,9 +111,6 @@ public class MyPanel extends JPanel {
 		}
 		x = x / (INNER_CELL_SIZE + 1);
 		y = y / (INNER_CELL_SIZE + 1);
-		if (x == 0 && y == TOTAL_ROWS - 1) {    //The lower left extra cell
-			return x;
-		}
 		if (x < 0 || x > TOTAL_COLUMNS - 1 || y < 0 || y > TOTAL_ROWS - 1) {   //Outside the rest of the grid
 			return -1;
 		}
@@ -147,229 +144,57 @@ public class MyPanel extends JPanel {
 	public int getRows() {
 		return TOTAL_ROWS;
 	}
+	public Color getColor(int x, int y) {
+		return colorArray[x][y];
+	}
+	public void setColor(int x, int y, Color color) {
+		colorArray[x][y] = color;
+		return;
+	}
 	public boolean isBomb(int x, int y) {	//Method to verify if the selected square is a bomb
 		return bombArray[x][y];
 	}
-	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
+	
+	public int surroundingBombs(int x, int y) {	//Method for counting number of bombs around a tile.
+		
 		int bombCounter = 0;
 		
 		for(int i = x-1; i <= x+1; i++) {
 			for(int j = y-1; j <= y+1; j++) {
-				if(i < TOTAL_COLUMNS && i >= 0 && j < TOTAL_ROWS && j >= 0 ) {
+				//Check if coordinates are inside the grid
+				if(i < this.getColumns() && i >= 0 && j < this.getRows() && j >= 0 ) {
 					if(isBomb(i,j)) {
 						bombCounter++;
 					}
 				}
 			}
 		}
-		System.out.println(bombCounter);
 		return bombCounter;
 	}
-	public void chain(int x, int y) { //method to create a chain between cells that have no bombs nearby and color them grey
-		if(x==0 && y!=0 && y!=TOTAL_ROWS -1){
-			for(int i=0; i<2; i++){
-				for (int j=-1; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=0; i<2; i++){
-					for (int j=-1; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
+	public void chain(int x, int y) { //Recursive method to uncover a chain of tiles that have no surrounding bombs
+		//Check if there aren't any surrounding bombs
+		if(this.surroundingBombs(x, y) == 0) {
+			for(int i=x-1; i<=x+1; i++) {
+				for (int j=y-1; j<=y+1; j++) {
+					//Check if coordinates are inside the grid
+					if(i < this.getColumns() && i >= 0 && j < this.getRows() && j >= 0) {
+						//Check that tile is uncovered
+						if(this.getColor(i,j) == Color.WHITE){
+							this.setColor(i, j, Color.GRAY);
+							this.chain(i, j);
+						}
 					}
 				}
 			}
 		}
-		else if(x==8 && y!=8 && y!=0){
-			for(int i=-1; i<1; i++){
-				for (int j=-1; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<1; i++){
-					for (int j=-1; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(x==0 && y==0){
-			for(int i=0; i<2; i++){
-				for (int j=0; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=0; i<2; i++){
-					for (int j=0; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(y==0 && x!=0 && x!=8){
-			for(int i=-1; i<2; i++){
-				for (int j=0; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<2; i++){
-					for (int j=0; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(x==0 && y==8){
-			for(int i=0; i<2; i++){
-				for (int j=-1; j<1; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=0; i<2; i++){
-					for (int j=-1; j<1; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(y==8 && x!=0 && x!=8){
-			for(int i=-1; i<2; i++){
-				for (int j=-1; j<1; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<2; i++){
-					for (int j=-1; j<1; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(x==8 && y==0){
-			for(int i=-1; i<1; i++){
-				for (int j=0; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<1; i++){
-					for (int j=0; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else if(x==8 && y==8){
-			for(int i=-1; i<1; i++){
-				for (int j=-1; j<1; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<1; i++){
-					for (int j=-1; j<1; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
-				}
-			}
-		}
-		else{
-			for(int i=-1; i<2; i++){
-				for (int j=-1; j<2; j++){
-					if(bombArray[x+i][y+j]==false){
-						chainswitch = true;
-					}
-					else{
-						chainswitch = false;
-						break;
-					}
-				}
-				if (chainswitch==false){
-					break;
-				}
-			}
-			if(chainswitch){
-				for(int i=-1; i<2; i++){
-					for (int j=-1; j<2; j++){
-						colorArray[x+i][y+j] = Color.GRAY;
-					}
+	}
+	public void bombPressed() {	//Method for when user loses the game. Uncovers all tiles
+		for(int i = 0; i < this.getColumns(); i++) {
+			for(int j = 0; j < this.getRows(); j++) {
+				if(this.isBomb(i,j)) {
+					this.setColor(i,j,Color.BLACK);
+				} else {
+					this.setColor(i, j, Color.GRAY);
 				}
 			}
 		}

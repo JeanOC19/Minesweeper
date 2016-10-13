@@ -96,27 +96,14 @@ public class MyMouseAdapter extends MouseAdapter {
 					}
 					else {
 						//On the grid
-						if(myPanel.isBomb(gridX, gridY) && !myPanel.colorArray[gridX][gridY].equals(Color.RED)) {
-							//If square is a bomb and hasn't been flagged, reveal the rest
-							for(int i = 0; i < myPanel.getColumns(); i++) {
-								for(int j = 0; j < myPanel.getRows(); j++) {
-									if(myPanel.isBomb(i,j)) {
-										myPanel.colorArray[i][j] = Color.BLACK;
-									} 
-								}
-							}
-						} else if(!myPanel.colorArray[gridX][gridY].equals(Color.RED) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)) {
-							//Paint the panel if it hasn't been flagged or revealed to be a bomb
-							myPanel.colorArray[gridX][gridY] = Color.GRAY;
-							myPanel.chain(gridX, gridY);
+						if(myPanel.isBomb(gridX, gridY) && myPanel.getColor(gridX,gridY) != Color.RED) {
+							//If square is a bomb and hasn't been flagged, user lost
+							myPanel.bombPressed();
 							
-						  for(int i=-1; i<2; i++){ //continue chain
-								for (int j=-1; j<2; j++){
-									myPanel.chain(gridX, gridY);
-									myPanel.chain(gridX+i, gridY+j);
-									myPanel.chain(gridX-i, gridY-j);
-								}
-							}
+						} else if(myPanel.getColor(gridX,gridY) != Color.RED && myPanel.getColor(gridX,gridY) != Color.BLACK) {
+							//Paint the panel if it hasn't been flagged or revealed to be a bomb
+							myPanel.setColor(gridX,gridY,Color.GRAY);
+							myPanel.chain(gridX, gridY);
 						}
 						myPanel.repaint();
 					}
@@ -156,12 +143,12 @@ public class MyMouseAdapter extends MouseAdapter {
 						//Do nothing
 					} else {
 						//On the grid
-						if(myPanel.colorArray[gridX][gridY].equals(Color.RED)) {
+						if(myPanel.getColor(gridX,gridY) == Color.RED) {
 							//If tile is red, then paint white
-							myPanel.colorArray[gridX][gridY] = Color.WHITE;
-						} else if(!myPanel.colorArray[gridX][gridY].equals(Color.GRAY) && !myPanel.colorArray[gridX][gridY].equals(Color.BLACK)){
+							myPanel.setColor(gridX,gridY,Color.WHITE);
+						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK){
 							//Paint the tile red as long as it hasn't been uncovered or shown to be a bomb
-							myPanel.colorArray[gridX][gridY] = Color.RED;	
+							myPanel.setColor(gridX,gridY,Color.RED);
 						} 
 					}
 				}
