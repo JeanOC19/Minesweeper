@@ -3,6 +3,8 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.util.Random;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class MyPanel extends JPanel {
@@ -13,14 +15,15 @@ public class MyPanel extends JPanel {
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
 	private static final int BOMB_COUNT = 12;
-	boolean chainswitch=true;
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
+	public boolean popupswitch=false;
 	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
 	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
+	JFrame frame = new JFrame("You lose");
 
 	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
@@ -198,5 +201,9 @@ public class MyPanel extends JPanel {
 				}
 			}
 		}
+	}
+	public void losemessage(){
+		repaint();
+		JOptionPane.showMessageDialog(frame, "git gud");
 	}
 }

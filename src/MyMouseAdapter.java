@@ -6,9 +6,10 @@ import java.awt.event.MouseEvent;
 //import java.util.Random;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class MyMouseAdapter extends MouseAdapter {
-//	private Random generator = new Random();
+	JFrame frame = new JFrame("You lose"); //Panel for lose condition
 	public void mousePressed(MouseEvent e) {
 		switch (e.getButton()) {
 		case 1:		//Left mouse button
@@ -99,7 +100,7 @@ public class MyMouseAdapter extends MouseAdapter {
 						if(myPanel.isBomb(gridX, gridY) && myPanel.getColor(gridX,gridY) != Color.RED) {
 							//If square is a bomb and hasn't been flagged, user lost
 							myPanel.bombPressed();
-							
+							myPanel.losemessage();
 						} else if(myPanel.getColor(gridX,gridY) != Color.RED && myPanel.getColor(gridX,gridY) != Color.BLACK) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.setColor(gridX,gridY,Color.GRAY);
