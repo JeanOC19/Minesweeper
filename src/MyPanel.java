@@ -35,6 +35,7 @@ public class MyPanel extends JPanel {
 		
 		this.setUp(); //Runs tile and bomb setup method
 	}
+	
 	public void paintComponent(Graphics g) {	//Method in charge of painting tiles and numbers
 		super.paintComponent(g);
 
