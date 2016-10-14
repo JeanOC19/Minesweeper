@@ -6,9 +6,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 
 public class MyMouseAdapter extends MouseAdapter {
-	JFrame frame = new JFrame("You lose"); //Panel for lose condition
 
-	public void mousePressed(MouseEvent e) {
+	public void mousePressed(MouseEvent e) {		//When mouse button is pressed
 		switch (e.getButton()) {
 		case 1:		//Left mouse button
 			Component c = e.getComponent();
@@ -59,7 +58,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			break;
 		}
 	}
-	public void mouseReleased(MouseEvent e) {
+	public void mouseReleased(MouseEvent e) {		//When mouse button is released
 		switch (e.getButton()) {
 		case 1:		//Left mouse button
 			Component c = e.getComponent();
@@ -70,7 +69,7 @@ public class MyMouseAdapter extends MouseAdapter {
 				}
 			}
 			JFrame myFrame = (JFrame)c;
-			MyPanel myPanel = (MyPanel) myFrame.getContentPane().getComponent(0);  //Can also loop among components to find MyPanel
+			MyPanel myPanel = (MyPanel) myFrame.getContentPane().getComponent(0);
 			Insets myInsets = myFrame.getInsets();
 			int x1 = myInsets.left;
 			int y1 = myInsets.top;
@@ -81,7 +80,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			int gridX = myPanel.getGridX(x, y);
 			int gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endSwitch == true) {
+			if (myPanel.mouseDownGridX == -1 || myPanel.mouseDownGridY == -1) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -89,7 +88,7 @@ public class MyMouseAdapter extends MouseAdapter {
 					//Is releasing outside
 					//Do nothing
 				} else {
-					if ((myPanel.mouseDownGridX != gridX) || (myPanel.mouseDownGridY != gridY)) {
+					if (myPanel.mouseDownGridX != gridX || myPanel.mouseDownGridY != gridY) {
 						//Released the mouse button on a different cell where it was pressed
 						//Do nothing
 					}
@@ -101,7 +100,9 @@ public class MyMouseAdapter extends MouseAdapter {
 						} else if(myPanel.getColor(gridX,gridY) != Color.RED && myPanel.getColor(gridX,gridY) != Color.BLACK) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.setColor(gridX,gridY,Color.GRAY);
+							//Call the chain method to clear adjacent tiles
 							myPanel.chain(gridX, gridY);
+							//Check if user has met winning conditions
 							myPanel.winConditions();
 						}
 						myPanel.repaint();
@@ -118,7 +119,7 @@ public class MyMouseAdapter extends MouseAdapter {
 				}
 			}
 			myFrame = (JFrame)c;
-			myPanel = (MyPanel) myFrame.getContentPane().getComponent(0);  //Can also loop among components to find MyPanel
+			myPanel = (MyPanel) myFrame.getContentPane().getComponent(0);
 			myInsets = myFrame.getInsets();
 			x1 = myInsets.left;
 			y1 = myInsets.top;
@@ -129,7 +130,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			gridX = myPanel.getGridX(x, y);
 			gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endSwitch == true) {
+			if (myPanel.mouseDownGridX == -1 || myPanel.mouseDownGridY == -1) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -143,14 +144,15 @@ public class MyMouseAdapter extends MouseAdapter {
 					} else {
 						//On the grid
 						if(myPanel.getColor(gridX,gridY) == Color.RED) {
-							//If tile is red, then paint white
+							//If tile is flagged, paint it white
 							myPanel.setColor(gridX,gridY,Color.WHITE);
+							//Lower the counter by 1
 							myPanel.removeFlag();
 						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK && myPanel.getFlags() < myPanel.getBombs()){
 							//Paint the tile red as long as it hasn't been uncovered or shown to be a bomb
+							//Increase counter by 1
 							myPanel.addFlag();
 							myPanel.setColor(gridX,gridY,Color.RED);
-							myPanel.winConditions();
 						} 
 					}
 				}

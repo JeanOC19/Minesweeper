@@ -3,7 +3,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.util.Random;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -13,20 +12,17 @@ public class MyPanel extends JPanel {
 	private static final int GRID_Y = 25;
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
-	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
-	private static final int BOMB_COUNT = 5;
+	private static final int TOTAL_ROWS = 9;
+	private static final int BOMB_COUNT = 13;
 	private Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	private boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
-	private int flagCounter = 0;
+	private int flagCounter;	//Keep track of the number of flags
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
-	public boolean endSwitch = false;
-	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
-	public JFrame frame = new JFrame("Game");
 
-	public MyPanel() {   //This is the constructor... this code runs first to initialize
+	public MyPanel() {
 		if (INNER_CELL_SIZE + (new Random()).nextInt(1) < 1) {	//Use of "random" to prevent unwanted Eclipse warning
 			throw new RuntimeException("INNER_CELL_SIZE must be positive!");
 		}
@@ -36,19 +32,8 @@ public class MyPanel extends JPanel {
 		if (TOTAL_ROWS + (new Random()).nextInt(1) < 3) {	//Use of "random" to prevent unwanted Eclipse warning
 			throw new RuntimeException("TOTAL_ROWS must be at least 3!");
 		}
-		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Create the 9x9 grid colors
-			for (int y = 0; y < TOTAL_ROWS; y++) {
-				this.setColor(x, y, Color.WHITE);
-			}
-		}
-		for (int x = 0; x < BOMB_COUNT;) {		//Assign bombs to random spaces
-			int i = new Random().nextInt(TOTAL_COLUMNS);
-			int j = new Random().nextInt(TOTAL_ROWS);
-			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space doesn't have one already
-				bombArray[i][j] = true;
-				x++;
-			}
-		}
+		
+		this.setUp(); //Runs tile and bomb setup method
 	}
 	public void paintComponent(Graphics g) {	//Method in charge of painting tiles and numbers
 		super.paintComponent(g);
@@ -66,8 +51,7 @@ public class MyPanel extends JPanel {
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(x1, y1, width + 1, height + 1);
 
-		//Draw the grid minus the bottom row (which has only one cell)
-		//By default, the grid will be 10x10 (see above: TOTAL_COLUMNS and TOTAL_ROWS) 
+		//Draw the grid
 		g.setColor(Color.BLACK);
 		for (int y = 0; y <= TOTAL_ROWS; y++) {
 			g.drawLine(x1 + GRID_X, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)), x1 + GRID_X + ((INNER_CELL_SIZE + 1) * TOTAL_COLUMNS), y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)));
@@ -76,7 +60,7 @@ public class MyPanel extends JPanel {
 			g.drawLine(x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)), y1 + GRID_Y, x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)), y1 + GRID_Y + ((INNER_CELL_SIZE + 1) * (TOTAL_ROWS )));
 		}
 
-		//Paint cell colors and paint numbers
+		//Paint cell colors and paint necessary numbers
 		for (int x = 0; x < TOTAL_COLUMNS; x++) {
 			for (int y = 0; y < TOTAL_ROWS; y++) {
 				Color c = this.getColor(x, y);
@@ -86,19 +70,37 @@ public class MyPanel extends JPanel {
 				//If the tile has been pressed, count surrounding bombs
 				if (this.getColor(x, y) == Color.GRAY) {
 					int bombCount = this.surroundingBombs(x, y);
-					//If the number of surrounding bombs is greater than 0, paint the number
-					if(bombCount > 0){
-						g.setColor(Color.YELLOW);
-						g.setFont(new Font("default", Font.BOLD, 16));
-						g.drawString(bombCount + "" + "", x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 12, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 21);
-					}
+					//Call the method to paint the number
+					this.paintNumber(g, bombCount, x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 10, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 22);
 				}
 			}
 		}	
 	}
+	public void setUp() {	//This method paints the tiles and sets the bomb locations, used to reset board
+		flagCounter = 0; //Set the flag count to 0
+		
+		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Delete any existing bombs
+			for (int y = 0; y < TOTAL_ROWS; y++) {
+				bombArray[x][y] = false;
+			}
+		}
+		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Paint all tiles to their covered color
+			for (int y = 0; y < TOTAL_ROWS; y++) {
+				this.setColor(x, y, Color.WHITE);
+			}
+		}
+		for (int x = 0; x < BOMB_COUNT;) {		//Assign bombs to random spaces
+			int i = new Random().nextInt(TOTAL_COLUMNS);
+			int j = new Random().nextInt(TOTAL_ROWS);
+			if(bombArray[i][j] == false) { 		//Assigns a bomb if the space doesn't have one already
+				bombArray[i][j] = true;
+				x++;
+			}
+		}
+	}
 	
 	//Setter and getter methods
-	public int getGridX(int x, int y) {
+	public int getGridX(int x, int y) {		//Return column
 		Insets myInsets = getInsets();
 		int x1 = myInsets.left;
 		int y1 = myInsets.top;
@@ -120,7 +122,7 @@ public class MyPanel extends JPanel {
 		}
 		return x;
 	}
-	public int getGridY(int x, int y) {
+	public int getGridY(int x, int y) {		//Return row
 		Insets myInsets = getInsets();
 		int x1 = myInsets.left;
 		int y1 = myInsets.top;
@@ -142,16 +144,16 @@ public class MyPanel extends JPanel {
 		}
 		return y;
 	}
-	public int getColumns() {
+	public int getColumns() {	//Returns number of columns
 		return TOTAL_COLUMNS;
 	}
-	public int getRows() {
+	public int getRows() {		//Returns number of rows
 		return TOTAL_ROWS;
 	}
-	public Color getColor(int x, int y) {
+	public Color getColor(int x, int y) {		//Returns the color of the tile
 		return colorArray[x][y];
 	}
-	public void setColor(int x, int y, Color color) {
+	public void setColor(int x, int y, Color color) {		//Sets the color of a specific tile
 		colorArray[x][y] = color;
 		return;
 	}
@@ -172,7 +174,40 @@ public class MyPanel extends JPanel {
 		return flagCounter;
 	}
 	
-	public int surroundingBombs(int x, int y) {	//Method for counting number of bombs around a tile.
+	public void paintNumber(Graphics g, int bombCount, int x, int y) {		//Method to paint each number with a different color and display it
+		switch(bombCount){
+		case 0:
+			break;
+		case 1:
+			g.setColor(Color.BLUE);
+			break;
+		case 2:
+			g.setColor(Color.GREEN);
+			break;
+		case 3:
+			g.setColor(Color.RED);
+			break;
+		case 4:
+			g.setColor(Color.YELLOW);
+			break;
+		case 5:
+			g.setColor(Color.ORANGE);
+			break;
+		case 6:
+			g.setColor(Color.MAGENTA);
+			break;
+		case 7:
+			g.setColor(Color.PINK);
+			break;
+		case 8:
+			g.setColor(Color.WHITE);
+			break;
+			
+		}
+		g.setFont(new Font("default", Font.BOLD, 18));
+		g.drawString(bombCount + "" + "", x, y);
+	}
+	public int surroundingBombs(int x, int y) {		//Method for counting number of bombs around a tile.
 		
 		int bombCounter = 0;
 		
@@ -188,7 +223,7 @@ public class MyPanel extends JPanel {
 		}
 		return bombCounter;
 	}
-	public void chain(int x, int y) { //Recursive method to uncover a chain of tiles that have no surrounding bombs
+	public void chain(int x, int y) { 	//Recursive method to uncover a chain of tiles that have no surrounding bombs
 		//Check if there aren't any surrounding bombs
 		if(this.surroundingBombs(x, y) == 0) {
 			for(int i=x-1; i<=x+1; i++) {
@@ -205,7 +240,7 @@ public class MyPanel extends JPanel {
 			}
 		}
 	}
-	public void bombPressed() {	//Method for when user loses the game. Uncovers all tiles
+	public void bombPressed() {		//Method for when user loses the game. Uncovers all tiles
 		for(int i = 0; i < this.getColumns(); i++) {
 			for(int j = 0; j < this.getRows(); j++) {
 				if(this.isBomb(i,j)) {
@@ -215,9 +250,14 @@ public class MyPanel extends JPanel {
 				}
 			}
 		}
+		
 		repaint();
-		JOptionPane.showMessageDialog(frame, "You Lose");
-		endSwitch = true;
+		int n = JOptionPane.showConfirmDialog(null,"Try Again?","Game Over :(",JOptionPane.YES_NO_OPTION); //Show message prompt if game is over
+        if(n == JOptionPane.YES_OPTION){
+        	this.setUp();
+        } else {
+         	System.exit(0);
+        }
 	}
 	public void winConditions(){	//Check if the player has won
 		for(int i = 0; i < this.getColumns(); i++) {
@@ -230,7 +270,11 @@ public class MyPanel extends JPanel {
 		}
 
 		repaint();
-		JOptionPane.showMessageDialog(frame, "You Win");
-		endSwitch=true;
+		int n = JOptionPane.showConfirmDialog(null,"Try Again?","You Win!! :)",JOptionPane.YES_NO_OPTION); //Show message box after game has ended
+        if(n == JOptionPane.YES_OPTION){ //Prompt user to try again
+        	this.setUp();
+        } else {
+         	System.exit(0);
+        }
 	}
 }
