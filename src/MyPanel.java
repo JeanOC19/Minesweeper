@@ -1,8 +1,8 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.util.Random;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -14,20 +14,17 @@ public class MyPanel extends JPanel {
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
-	public static final int BOMB_COUNT = 3;
-	public int flagcounter=0;
+	private static final int BOMB_COUNT = 12;
+	private Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
+	private boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+	private int flagCounter;
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
-	public boolean popupswitch;
-	public boolean endswitch=false;
-	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
-	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
 	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
-	JFrame frame = new JFrame("You lose");
+	public JFrame frame = new JFrame("Game");
 
-	
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
 		if (INNER_CELL_SIZE + (new Random()).nextInt(1) < 1) {	//Use of "random" to prevent unwanted Eclipse warning
 			throw new RuntimeException("INNER_CELL_SIZE must be positive!");
@@ -38,15 +35,27 @@ public class MyPanel extends JPanel {
 		if (TOTAL_ROWS + (new Random()).nextInt(1) < 3) {	//Use of "random" to prevent unwanted Eclipse warning
 			throw new RuntimeException("TOTAL_ROWS must be at least 3!");
 		}
-		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Create the 9x9 grid colors
+		
+		this.setUp(); //Runs tile and bomb setup method
+	}
+	public void setUp() {	//This method paints the tiles and sets the bomb locations
+		flagCounter = 0; //Set the flag count to 0
+		
+		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Delete any existing bombs
+			for (int y = 0; y < TOTAL_ROWS; y++) {
+				bombArray[x][y] = false;
+			}
+		}
+		
+		for (int x = 0; x < TOTAL_COLUMNS; x++) {   //Create the 9x9 grid and paint it
 			for (int y = 0; y < TOTAL_ROWS; y++) {
 				this.setColor(x, y, Color.WHITE);
 			}
 		}
-		for (int x = 0; x < BOMB_COUNT;) {		//Assign 10 bombs to random spaces
+		for (int x = 0; x < BOMB_COUNT;) {		//Assign bombs to random spaces
 			int i = new Random().nextInt(TOTAL_COLUMNS);
 			int j = new Random().nextInt(TOTAL_ROWS);
-			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space is doesn't have one already
+			if(bombArray[i][j] == false) { 	//Assigns a bomb if the space doesn't have one already
 				bombArray[i][j] = true;
 				x++;
 			}
@@ -90,7 +99,8 @@ public class MyPanel extends JPanel {
 					int bombCount = this.surroundingBombs(x, y);
 					//If the number of surrounding bombs is greater than 0, paint the number
 					if(bombCount > 0){
-						g.setColor(Color.BLUE);
+						g.setColor(Color.YELLOW);
+						g.setFont(new Font("default", Font.BOLD, 16));
 						g.drawString(bombCount + "" + "", x1 + GRID_X + (x * (INNER_CELL_SIZE + 1)) + 12, y1 + GRID_Y + (y * (INNER_CELL_SIZE + 1)) + 21);
 					}
 				}
@@ -156,8 +166,21 @@ public class MyPanel extends JPanel {
 		colorArray[x][y] = color;
 		return;
 	}
+	public int getBombs() {		//Returns the number of bombs
+		return BOMB_COUNT;
+	}
 	public boolean isBomb(int x, int y) {	//Method to verify if the selected square is a bomb
 		return bombArray[x][y];
+	}
+	public void addFlag() {		//Method to add 1 to flag counter
+		flagCounter++;
+		
+	}
+	public void removeFlag() {		//Method to subtract 1 to flag counter
+		flagCounter--;
+	}
+	public int getFlags() {		//Returns the number of flags
+		return flagCounter;
 	}
 	
 	public int surroundingBombs(int x, int y) {	//Method for counting number of bombs around a tile.
@@ -203,30 +226,31 @@ public class MyPanel extends JPanel {
 				}
 			}
 		}
-	}
-	public void gameOver(){
+		
 		repaint();
-		JOptionPane.showMessageDialog(frame, "You Lose");
-		endswitch=true;
+		int n = JOptionPane.showConfirmDialog(null,"Try Again?","Game Over :(",JOptionPane.YES_NO_OPTION); //Show message prompt if game is over
+        if(n == JOptionPane.YES_OPTION){
+        	this.setUp();
+        } else {
+         	System.exit(0);
+        }
 	}
-	public void winConditions(){
-		mainLoop:
+	public void winConditions(){	//Check if the player has won
 		for(int i = 0; i < this.getColumns(); i++) {
 			for(int j = 0; j < this.getRows(); j++) {
-				if((this.getColor(i,j) == Color.WHITE || this.getColor(i,j) == Color.RED) && this.isBomb(i,j)==false){
-					popupswitch=false;
-					break mainLoop;
-				}
-				else{
-					popupswitch=true;
+				if((this.getColor(i,j) == Color.WHITE || this.getColor(i,j) == Color.RED) && this.isBomb(i,j) == false){
+					//If there are still covered tiles that are not bombs, game hasn't ended.
+					return;
 				}
 			}
 		}
-		if(popupswitch==true){
-			repaint();
-			JOptionPane.showMessageDialog(frame, "You Win");
-			endswitch=true;
-			
-		}
+
+		repaint();
+		int n = JOptionPane.showConfirmDialog(null,"Try Again?","You Win!! :)",JOptionPane.YES_NO_OPTION); //Show message box after game has ended
+        if(n == JOptionPane.YES_OPTION){ //Prompt user to try again
+        	this.setUp();
+        } else {
+         	System.exit(0);
+        }
 	}
 }

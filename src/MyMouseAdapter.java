@@ -3,12 +3,10 @@ import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-//import java.util.Random;
-
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 public class MyMouseAdapter extends MouseAdapter {
+	JFrame frame = new JFrame("You lose"); //Panel for lose condition
 
 	public void mousePressed(MouseEvent e) {
 		switch (e.getButton()) {
@@ -83,7 +81,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			int gridX = myPanel.getGridX(x, y);
 			int gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endswitch==true) {
+			if (myPanel.mouseDownGridX == -1 || myPanel.mouseDownGridY == -1) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -91,7 +89,7 @@ public class MyMouseAdapter extends MouseAdapter {
 					//Is releasing outside
 					//Do nothing
 				} else {
-					if ((myPanel.mouseDownGridX != gridX) || (myPanel.mouseDownGridY != gridY)) {
+					if (myPanel.mouseDownGridX != gridX || myPanel.mouseDownGridY != gridY) {
 						//Released the mouse button on a different cell where it was pressed
 						//Do nothing
 					}
@@ -100,7 +98,6 @@ public class MyMouseAdapter extends MouseAdapter {
 						if(myPanel.isBomb(gridX, gridY) && myPanel.getColor(gridX,gridY) != Color.RED) {
 							//If square is a bomb and hasn't been flagged, user lost
 							myPanel.bombPressed();
-							myPanel.gameOver();
 						} else if(myPanel.getColor(gridX,gridY) != Color.RED && myPanel.getColor(gridX,gridY) != Color.BLACK) {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.setColor(gridX,gridY,Color.GRAY);
@@ -132,7 +129,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			gridX = myPanel.getGridX(x, y);
 			gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endswitch==true) {
+			if (myPanel.mouseDownGridX == -1 || myPanel.mouseDownGridY == -1) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -148,10 +145,10 @@ public class MyMouseAdapter extends MouseAdapter {
 						if(myPanel.getColor(gridX,gridY) == Color.RED) {
 							//If tile is red, then paint white
 							myPanel.setColor(gridX,gridY,Color.WHITE);
-							myPanel.flagcounter--;
-						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK && myPanel.flagcounter<myPanel.BOMB_COUNT){
+							myPanel.removeFlag();
+						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK && myPanel.getFlags() < myPanel.getBombs()){
 							//Paint the tile red as long as it hasn't been uncovered or shown to be a bomb
-							myPanel.flagcounter++;
+							myPanel.addFlag();
 							myPanel.setColor(gridX,gridY,Color.RED);
 							myPanel.winConditions();
 						} 
