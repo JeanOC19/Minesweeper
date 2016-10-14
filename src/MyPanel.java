@@ -3,6 +3,10 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.util.Random;
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/master
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -14,17 +18,33 @@ public class MyPanel extends JPanel {
 	private static final int INNER_CELL_SIZE = 29;
 	private static final int TOTAL_COLUMNS = 9;
 	private static final int TOTAL_ROWS = 9;   //Last row has only one cell
+<<<<<<< HEAD
 	private static final int BOMB_COUNT = 5;
 	private Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
 	private boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
 	private int flagCounter = 0;
+=======
+	public static final int BOMB_COUNT = 3;
+	public int flagcounter=0;
+>>>>>>> refs/remotes/origin/master
 	public int x = -1;
 	public int y = -1;
 	public int mouseDownGridX = 0;
 	public int mouseDownGridY = 0;
+<<<<<<< HEAD
 	public boolean endSwitch = false;
+=======
+	public boolean popupswitch;
+	public boolean endswitch=false;
+	public Color[][] colorArray = new Color[TOTAL_COLUMNS][TOTAL_ROWS];
+	public boolean[][] bombArray = new boolean[TOTAL_COLUMNS][TOTAL_ROWS];
+>>>>>>> refs/remotes/origin/master
 	public MyMouseAdapter myMouseAdapter = new MyMouseAdapter();
+<<<<<<< HEAD
 	public JFrame frame = new JFrame("Game");
+=======
+	JFrame frame = new JFrame("You lose");
+>>>>>>> refs/remotes/origin/master
 
 	public MyPanel() {   //This is the constructor... this code runs first to initialize
 		if (INNER_CELL_SIZE + (new Random()).nextInt(1) < 1) {	//Use of "random" to prevent unwanted Eclipse warning
@@ -232,5 +252,30 @@ public class MyPanel extends JPanel {
 		repaint();
 		JOptionPane.showMessageDialog(frame, "You Win");
 		endSwitch=true;
+	}
+	public void gameOver(){
+		repaint();
+		JOptionPane.showMessageDialog(frame, "You Lose");
+		endswitch=true;
+	}
+	public void winConditions(){
+		mainLoop:
+		for(int i = 0; i < this.getColumns(); i++) {
+			for(int j = 0; j < this.getRows(); j++) {
+				if((this.getColor(i,j) == Color.WHITE || this.getColor(i,j) == Color.RED) && this.isBomb(i,j)==false){
+					popupswitch=false;
+					break mainLoop;
+				}
+				else{
+					popupswitch=true;
+				}
+			}
+		}
+		if(popupswitch==true){
+			repaint();
+			JOptionPane.showMessageDialog(frame, "You Win");
+			endswitch=true;
+			
+		}
 	}
 }

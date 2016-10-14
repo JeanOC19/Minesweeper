@@ -5,7 +5,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 
-
 public class MyMouseAdapter extends MouseAdapter {
 	JFrame frame = new JFrame("You lose"); //Panel for lose condition
 
