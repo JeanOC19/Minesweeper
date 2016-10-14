@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class MyMouseAdapter extends MouseAdapter {
-	JFrame frame = new JFrame("You lose"); //Panel for lose condition
+
 	public void mousePressed(MouseEvent e) {
 		switch (e.getButton()) {
 		case 1:		//Left mouse button
@@ -83,7 +83,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			int gridX = myPanel.getGridX(x, y);
 			int gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1)) {
+			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endswitch==true) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -105,6 +105,7 @@ public class MyMouseAdapter extends MouseAdapter {
 							//Paint the panel if it hasn't been flagged or revealed to be a bomb
 							myPanel.setColor(gridX,gridY,Color.GRAY);
 							myPanel.chain(gridX, gridY);
+							myPanel.winConditions();
 						}
 						myPanel.repaint();
 					}
@@ -131,7 +132,7 @@ public class MyMouseAdapter extends MouseAdapter {
 			myPanel.y = y;
 			gridX = myPanel.getGridX(x, y);
 			gridY = myPanel.getGridY(x, y);
-			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1)) {
+			if ((myPanel.mouseDownGridX == -1) || (myPanel.mouseDownGridY == -1) || myPanel.endswitch==true) {
 				//Had pressed outside
 				//Do nothing
 			} else {
@@ -147,9 +148,12 @@ public class MyMouseAdapter extends MouseAdapter {
 						if(myPanel.getColor(gridX,gridY) == Color.RED) {
 							//If tile is red, then paint white
 							myPanel.setColor(gridX,gridY,Color.WHITE);
-						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK){
+							myPanel.flagcounter--;
+						} else if(myPanel.getColor(gridX,gridY) != Color.GRAY && myPanel.getColor(gridX,gridY) != Color.BLACK && myPanel.flagcounter<myPanel.BOMB_COUNT){
 							//Paint the tile red as long as it hasn't been uncovered or shown to be a bomb
+							myPanel.flagcounter++;
 							myPanel.setColor(gridX,gridY,Color.RED);
+							myPanel.winConditions();
 						} 
 					}
 				}
